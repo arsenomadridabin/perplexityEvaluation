@@ -1,0 +1,43 @@
+[
+    {
+      "polymer_system": "Kapton (PMDA-ODA)",
+      "force_field": "OPLS-AA",
+      "Density (g/cm³)": "NA",
+      "Glass Transition Temperature (K)": "600-700",
+      "Radius of Gyration (nm)": "NA",
+      "Young's Modulus (GPa)": "2.5",
+      "Diffusion Coefficient (m²/s)": "NA",
+      "Viscosity (Pa s)": "NA"
+    },
+    {
+      "polymer_system": "PMDA-BIA",
+      "force_field": "OPLS-AA",
+      "Density (g/cm³)": "NA",
+      "Glass Transition Temperature (K)": "500-600",
+      "Radius of Gyration (nm)": "NA",
+      "Young's Modulus (GPa)": "2.0",
+      "Diffusion Coefficient (m²/s)": "NA",
+      "Viscosity (Pa s)": "NA"
+    },
+    {
+      "polymer_system": "Kapton (PMDA-ODA)",
+      "force_field": "COMPASS",
+      "Density (g/cm³)": "NA",
+      "Glass Transition Temperature (K)": "NA",
+      "Radius of Gyration (nm)": "NA",
+      "Young's Modulus (GPa)": "NA",
+      "Diffusion Coefficient (m²/s)": "NA",
+      "Viscosity (Pa s)": "NA"
+    },
+    {
+      "polymer_system": "PMDA-BIA",
+      "force_field": "COMPASS",
+      "Density (g/cm³)": "NA",
+      "Glass Transition Temperature (K)": "NA",
+      "Radius of Gyration (nm)": "NA",
+      "Young's Modulus (GPa)": "8.5",
+      "Diffusion Coefficient (m²/s)": "NA",
+      "Viscosity (Pa s)": "NA"
+    }
+  ]
+  

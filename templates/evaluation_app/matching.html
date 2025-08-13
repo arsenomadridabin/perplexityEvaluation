@@ -1,0 +1,520 @@
+{% extends 'evaluation_app/base.html' %}
+{% load evaluation_filters %}
+
+{% block title %}Manual Pair Matching - Polymer Evaluation Tool{% endblock %}
+
+{% block content %}
+{% csrf_token %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-link"></i> Manual Pair Matching</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    Select one entry from each column to create a matched pair. Click on entries to select them.
+                </p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <i class="fas fa-database"></i> 
+                            <strong>{{ ground_truth_entries.count }}</strong> ground truth entries remaining
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <i class="fas fa-chart-line"></i> 
+                            <strong>{{ predicted_entries.count }}</strong> predicted entries remaining
+                        </div>
+                    </div>
+                </div>
+                {% if matched_pairs %}
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> 
+                        <strong>{{ matched_pairs.count }}</strong> pairs created successfully! 
+                        <a href="{% url 'evaluation' %}" class="btn btn-sm btn-success ms-2">
+                            <i class="fas fa-arrow-right"></i> Go to Evaluation
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-database"></i> Ground Truth Entries</h5>
+            </div>
+            <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                {% if ground_truth_entries %}
+                    {% for entry in ground_truth_entries %}
+                        <div class="entry-card card mb-3" data-id="{{ entry.id }}" data-type="gt">
+                            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ entry.polymer_system }}</strong>
+                                    <span class="badge bg-secondary ms-2">{{ entry.force_field }}</span>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-warning no-match-btn me-2" data-entry-id="{{ entry.id }}" data-entry-type="gt">
+                                        <i class="fas fa-times"></i> No Match
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-entry-btn" data-entry-id="{{ entry.id }}" data-entry-type="gt">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">Density:</small><br>
+                                        <code>{{ entry.density }}</code>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Glass Transition:</small><br>
+                                        <code>{{ entry.glass_transition_temp }}</code>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">Young's Modulus:</small><br>
+                                        <code>{{ entry.youngs_modulus }}</code>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Radius of Gyration:</small><br>
+                                        <code>{{ entry.radius_of_gyration }}</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No ground truth entries found. Upload data files first.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Predicted Entries</h5>
+            </div>
+            <div class="card-body" style="max-height: 600px; overflow-y: auto;">
+                {% if predicted_entries %}
+                    {% for entry in predicted_entries %}
+                        <div class="entry-card card mb-3" data-id="{{ entry.id }}" data-type="pred">
+                            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ entry.polymer_system }}</strong>
+                                    <span class="badge bg-secondary ms-2">{{ entry.force_field }}</span>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-warning no-match-btn me-2" data-entry-id="{{ entry.id }}" data-entry-type="pred">
+                                        <i class="fas fa-times"></i> No Match
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-entry-btn" data-entry-id="{{ entry.id }}" data-entry-type="pred">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body py-2">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <small class="text-muted">Density:</small><br>
+                                        <code>{{ entry.density }}</code>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Glass Transition:</small><br>
+                                        <code>{{ entry.glass_transition_temp }}</code>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-6">
+                                        <small class="text-muted">Young's Modulus:</small><br>
+                                        <code>{{ entry.youngs_modulus }}</code>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted">Radius of Gyration:</small><br>
+                                        <code>{{ entry.radius_of_gyration }}</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No predicted entries found. Upload data files first.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-cogs"></i> Pair Controls</h5>
+            </div>
+            <div class="card-body text-center">
+                <button id="create-pair-btn" class="btn btn-success btn-lg me-3" disabled>
+                    <i class="fas fa-link"></i> Create Pair
+                </button>
+                <button id="clear-selection-btn" class="btn btn-warning btn-lg me-3">
+                    <i class="fas fa-eraser"></i> Clear Selection
+                </button>
+                <button id="clear-all-btn" class="btn btn-danger btn-lg">
+                    <i class="fas fa-trash-alt"></i> Clear All Data
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Matched Pairs</h5>
+            </div>
+            <div class="card-body">
+                {% if matched_pairs %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ground Truth</th>
+                                    <th>Predicted</th>
+                                    <th>Force Field</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pair in matched_pairs %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ pair.ground_truth.polymer_system }}</strong>
+                                        </td>
+                                        <td>
+                                            <strong>{{ pair.predicted.polymer_system }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ pair.ground_truth.force_field }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-danger delete-pair-btn" data-pair-id="{{ pair.id }}">
+                                                <i class="fas fa-trash"></i> Remove
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'evaluation' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-check-circle"></i> Proceed to Evaluation
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-link fa-3x mb-3"></i>
+                        <p>No matched pairs yet. Select entries from both columns to create pairs.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.entry-card {
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.entry-card:hover {
+    border-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.entry-card.selected {
+    border-color: var(--success-color);
+    background-color: #d4edda;
+}
+
+.entry-card.selected .card-header {
+    background-color: var(--success-color) !important;
+    color: white;
+}
+
+.entry-card.selected .delete-entry-btn {
+    background-color: white !important;
+    color: var(--danger-color) !important;
+    border-color: white !important;
+}
+
+.delete-entry-btn {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.delete-entry-btn:hover {
+    opacity: 1;
+}
+
+code {
+    background-color: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedGT = null;
+let selectedPred = null;
+
+// Entry selection
+document.querySelectorAll('.entry-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const type = this.dataset.type;
+        const id = this.dataset.id;
+        
+        console.log('Card clicked:', type, id);
+        
+        // Clear previous selection of same type
+        document.querySelectorAll(`.entry-card[data-type="${type}"]`).forEach(c => {
+            c.classList.remove('selected');
+        });
+        
+        // Select this card
+        this.classList.add('selected');
+        
+        if (type === 'gt') {
+            selectedGT = id;
+            console.log('Selected GT:', selectedGT);
+        } else {
+            selectedPred = id;
+            console.log('Selected Pred:', selectedPred);
+        }
+        
+        updateCreatePairButton();
+    });
+});
+
+// Create pair button
+document.getElementById('create-pair-btn').addEventListener('click', function() {
+    console.log('Create pair button clicked');
+    console.log('Selected GT:', selectedGT);
+    console.log('Selected Pred:', selectedPred);
+    
+    if (!selectedGT || !selectedPred) {
+        console.log('Missing selection');
+        return;
+    }
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    console.log('CSRF Token:', csrfToken);
+    
+    fetch('{% url "create_pair" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify({
+            ground_truth_id: selectedGT,
+            predicted_id: selectedPred
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            showAlert(data.message, 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showAlert(data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Fetch error:', error);
+        showAlert('Error creating pair: ' + error, 'danger');
+    });
+});
+
+// Clear selection button
+document.getElementById('clear-selection-btn').addEventListener('click', function() {
+    selectedGT = null;
+    selectedPred = null;
+    document.querySelectorAll('.entry-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    updateCreatePairButton();
+});
+
+// Clear all data button
+document.getElementById('clear-all-btn').addEventListener('click', function() {
+    if (confirm('Are you sure you want to delete ALL data? This will remove all ground truth entries, predicted entries, matched pairs, and classifications. This action cannot be undone.')) {
+        fetch('{% url "clear_all_data" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert(data.message, 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                showAlert(data.error, 'danger');
+            }
+        })
+        .catch(error => {
+            showAlert('Error clearing data: ' + error, 'danger');
+        });
+    }
+});
+
+// Delete pair buttons
+document.querySelectorAll('.delete-pair-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const pairId = this.dataset.pairId;
+        
+        if (confirm('Are you sure you want to delete this pair?')) {
+            fetch('{% url "delete_pair" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    pair_id: pairId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showAlert(data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error deleting pair: ' + error, 'danger');
+            });
+        }
+    });
+});
+
+// Delete entry buttons
+document.querySelectorAll('.delete-entry-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent card selection when clicking delete button
+        
+        const entryId = this.dataset.entryId;
+        const entryType = this.dataset.entryType;
+        
+        if (confirm(`Are you sure you want to delete this ${entryType} entry? This will also delete any related pairs and classifications.`)) {
+            fetch('{% url "delete_entry" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    entry_id: entryId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showAlert(data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error deleting entry: ' + error, 'danger');
+            });
+        }
+    });
+});
+
+function updateCreatePairButton() {
+    const btn = document.getElementById('create-pair-btn');
+    const shouldEnable = selectedGT && selectedPred;
+    console.log('Update button - GT:', selectedGT, 'Pred:', selectedPred, 'Enable:', shouldEnable);
+    btn.disabled = !shouldEnable;
+}
+
+// No match buttons
+document.querySelectorAll('.no-match-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent card selection when clicking no match button
+        
+        const entryId = this.dataset.entryId;
+        const entryType = this.dataset.entryType;
+        
+        if (confirm(`Mark this ${entryType} entry as "no match"? This will exclude it from future matching attempts.`)) {
+            fetch('{% url "mark_no_match" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({
+                    entry_id: entryId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(data.message, 'warning');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    showAlert(data.error, 'danger');
+                }
+            })
+            .catch(error => {
+                showAlert('Error marking as no match: ' + error, 'danger');
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

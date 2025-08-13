@@ -1,0 +1,160 @@
+{% extends 'evaluation_app/base.html' %}
+{% load evaluation_filters %}
+
+{% block title %}Home - Polymer Evaluation Tool{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-upload"></i> Upload Data Files</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.ground_truth_file.id_for_label }}" class="form-label">
+                                    <i class="fas fa-database"></i> Ground Truth JSON File
+                                </label>
+                                {{ form.ground_truth_file }}
+                                {% if form.ground_truth_file.help_text %}
+                                    <div class="form-text">{{ form.ground_truth_file.help_text }}</div>
+                                {% endif %}
+                                {% if form.ground_truth_file.errors %}
+                                    <div class="text-danger">{{ form.ground_truth_file.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.predicted_file.id_for_label }}" class="form-label">
+                                    <i class="fas fa-chart-line"></i> Predicted JSON File
+                                </label>
+                                {{ form.predicted_file }}
+                                {% if form.predicted_file.help_text %}
+                                    <div class="form-text">{{ form.predicted_file.help_text }}</div>
+                                {% endif %}
+                                {% if form.predicted_file.errors %}
+                                    <div class="text-danger">{{ form.predicted_file.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            {{ form.replace_existing }}
+                            <label class="form-check-label" for="{{ form.replace_existing.id_for_label }}">
+                                {{ form.replace_existing.label }}
+                            </label>
+                            {% if form.replace_existing.help_text %}
+                                <div class="form-text">{{ form.replace_existing.help_text }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-upload"></i> Upload and Process Data
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-info-circle"></i> How to Use</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-1"></i> Upload Data</h5>
+                        <p>Upload your ground truth and predicted JSON files. The system will validate the format and load the data.</p>
+                        
+                        <h5><i class="fas fa-2"></i> Match Pairs</h5>
+                        <p>Go to the Matching page to manually pair ground truth entries with their corresponding predictions.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="fas fa-3"></i> Evaluate</h5>
+                        <p>On the Evaluation page, classify each property as TP, FP, TN, or FN according to your criteria.</p>
+                        
+                        <h5><i class="fas fa-4"></i> View Results</h5>
+                        <p>Check the Statistics page for metrics and export your results for further analysis.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-chart-pie"></i> Current Status</h4>
+            </div>
+            <div class="card-body">
+                <div class="stats-card">
+                    <div class="stats-number">{{ gt_count }}</div>
+                    <div class="stats-label">Ground Truth Entries</div>
+                </div>
+                <div class="stats-card">
+                    <div class="stats-number">{{ pred_count }}</div>
+                    <div class="stats-label">Predicted Entries</div>
+                </div>
+                
+                {% if gt_count > 0 and pred_count > 0 %}
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'matching' %}" class="btn btn-success">
+                            <i class="fas fa-link"></i> Start Matching
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Upload data files to begin evaluation.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-book"></i> Classification Guide</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <span class="badge badge-tp">TP</span>
+                    <small class="text-muted">GT = numeric, Pred = numeric (±5% tolerance)</small>
+                </div>
+                <div class="mb-3">
+                    <span class="badge badge-fp">FP</span>
+                    <small class="text-muted">GT = NA, Pred = any numeric value</small>
+                </div>
+                <div class="mb-3">
+                    <span class="badge badge-tn">TN</span>
+                    <small class="text-muted">GT = NA, Pred = NA</small>
+                </div>
+                <div class="mb-3">
+                    <span class="badge badge-fn">FN</span>
+                    <small class="text-muted">GT = numeric, Pred = NA or outside ±5% tolerance</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="loading">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2">Processing data files...</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelector('form').addEventListener('submit', function() {
+    showLoading();
+});
+</script>
+{% endblock %} 

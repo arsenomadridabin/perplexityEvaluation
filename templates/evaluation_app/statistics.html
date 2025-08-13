@@ -1,0 +1,263 @@
+{% extends 'evaluation_app/base.html' %}
+{% load evaluation_filters %}
+
+{% block title %}Statistics - Polymer Evaluation Tool{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0"><i class="fas fa-chart-bar"></i> Evaluation Statistics</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    Overview of your evaluation results and performance metrics.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ matched_pairs_count }}</div>
+            <div class="stats-label">Total Pairs</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">{{ total }}</div>
+            <div class="stats-label">Total Classifications</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+            <div class="stats-number">8</div>
+            <div class="stats-label">Properties per Pair</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stats-card">
+                                <div class="stats-number">{{ matched_pairs_count|multiply:8 }}</div>
+            <div class="stats-label">Total Possible Classifications</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Classification Counts</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-success">{{ stats.TP }}</div>
+                            <div class="stats-label">True Positives (TP)</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-danger">{{ stats.FP }}</div>
+                            <div class="stats-label">False Positives (FP)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-secondary">{{ stats.TN }}</div>
+                            <div class="stats-label">True Negatives (TN)</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-warning">{{ stats.FN }}</div>
+                            <div class="stats-label">False Negatives (FN)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calculator"></i> Performance Metrics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-primary">{{ precision|floatformat:3 }}</div>
+                            <div class="stats-label">Precision</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-info">{{ recall|floatformat:3 }}</div>
+                            <div class="stats-label">Recall</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-success">{{ f1_score|floatformat:3 }}</div>
+                            <div class="stats-label">F1-Score</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <div class="stats-number text-warning">{{ accuracy|floatformat:3 }}</div>
+                            <div class="stats-label">Accuracy</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Classification Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-success" role="progressbar" 
+                                 style="width: {% if total > 0 %}{{ stats.TP|divide:total|multiply:100|floatformat:0 }}{% else %}0{% endif %}%">
+                                TP: {{ stats.TP }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-danger" role="progressbar" 
+                                 style="width: {% if total > 0 %}{{ stats.FP|divide:total|multiply:100|floatformat:0 }}{% else %}0{% endif %}%">
+                                FP: {{ stats.FP }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-secondary" role="progressbar" 
+                                 style="width: {% if total > 0 %}{{ stats.TN|divide:total|multiply:100|floatformat:0 }}{% else %}0{% endif %}%">
+                                TN: {{ stats.TN }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-warning" role="progressbar" 
+                                 style="width: {% if total > 0 %}{{ stats.FN|divide:total|multiply:100|floatformat:0 }}{% else %}0{% endif %}%">
+                                FN: {{ stats.FN }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Metric Definitions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Classification Types:</h6>
+                        <ul class="list-unstyled">
+                            <li><span class="badge bg-success">TP</span> True Positive: GT = numeric, Pred = numeric (±5% tolerance)</li>
+                            <li><span class="badge bg-danger">FP</span> False Positive: GT = NA, Pred = any numeric value</li>
+                            <li><span class="badge bg-secondary">TN</span> True Negative: GT = NA, Pred = NA</li>
+                            <li><span class="badge bg-warning">FN</span> False Negative: GT = numeric, Pred = NA or outside ±5% tolerance</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Performance Metrics:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Precision:</strong> TP / (TP + FP) - Accuracy of positive predictions</li>
+                            <li><strong>Recall:</strong> TP / (TP + FN) - Ability to find all positive cases</li>
+                            <li><strong>F1-Score:</strong> 2 × (Precision × Recall) / (Precision + Recall) - Harmonic mean</li>
+                            <li><strong>Accuracy:</strong> (TP + TN) / Total - Overall correctness</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{% url 'evaluation' %}" class="btn btn-primary btn-lg me-3">
+            <i class="fas fa-check-circle"></i> Back to Evaluation
+        </a>
+        <a href="{% url 'export_results' %}" class="btn btn-success btn-lg me-3">
+            <i class="fas fa-download"></i> Export Results
+        </a>
+        <a href="{% url 'matching' %}" class="btn btn-warning btn-lg">
+            <i class="fas fa-link"></i> Manage Pairs
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.progress {
+    border-radius: 15px;
+    background-color: #e9ecef;
+}
+
+.progress-bar {
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9em;
+    line-height: 30px;
+}
+
+.stats-card {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    border: 1px solid #dee2e6;
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stats-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.text-success { color: var(--success-color) !important; }
+.text-danger { color: var(--danger-color) !important; }
+.text-warning { color: var(--warning-color) !important; }
+.text-info { color: var(--secondary-color) !important; }
+.text-primary { color: var(--primary-color) !important; }
+.text-secondary { color: #6c757d !important; }
+</style>
+{% endblock %} 
